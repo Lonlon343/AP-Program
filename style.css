@@ -3,15 +3,38 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin: 50px;
+    border-radius: 30px;
+    flex-direction: column;
 
 
 }
 
+.div2 {
+    background-color: rgba(255, 62, 62, 0.205);
+    color: rgba(250, 106, 106, 0.612);
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 30px;
+    flex-direction: row;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    
+}
+
 .h1 {
-    font-size: 40px;
+    font-size: 60px;
     font-weight: bold;  
     color: blue;
     text-align: center;
+    font-family: fantasy, sans-serif;
 }
 
 .body {
@@ -19,9 +42,10 @@
 }
 
 .p {
-    font-size: 20px;
+    font-size: 40px;
     color: rgba(0, 0, 0, 0.458);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+
 }
 
 .button {
@@ -36,5 +60,36 @@
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 30px;
+    transition: background-color 0.3s ease;
 }
 
+.button:hover {
+    background-color: rgba(255, 62, 62, 0.4);
+    color: rgba(250, 106, 106, 1);
+}
+
+.div3 {
+    background-color: rgba(255, 62, 62, 0.205);
+    color: rgba(250, 106, 106, 0.612);
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 30px;
+    flex-direction: row;
+    align-items: center;
+    display: flex;
+    justify-content: left;
+    width: 30%;
+    margin-top: 30px;
+}
+
+.img {
+    width: 100%;
+    height: auto;
+    border-radius: 30px;
+}
