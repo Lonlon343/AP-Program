@@ -1,0 +1,40 @@
+.div {
+    background-color: rgba(124, 195, 249, 0.209);
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+
+}
+
+.h1 {
+    font-size: 40px;
+    font-weight: bold;  
+    color: blue;
+    text-align: center;
+}
+
+.body {
+    background-color: rgba(166, 255, 209, 0.139);
+}
+
+.p {
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.458);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.button {
+    background-color: rgba(255, 62, 62, 0.205);
+    color: rgba(250, 106, 106, 0.612);
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 30px;
+}
+
