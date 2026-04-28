@@ -5,14 +5,14 @@
     justify-content: center;
     margin: 50px;
     border-radius: 30px;
-    flex-direction: column;
+    flex-direction: row;
 
 
 }
 
 .div2 {
-    background-color: rgba(255, 62, 62, 0.205);
-    color: rgba(250, 106, 106, 0.612);
+    background-color: rgba(146, 51, 255, 0.205);
+    color: rgba(136, 56, 255, 0.612);
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -32,9 +32,10 @@
 .h1 {
     font-size: 60px;
     font-weight: bold;  
-    color: blue;
+    color: rgba(144, 0, 255, 0.442);
     text-align: center;
-    font-family: fantasy, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-style: italic;
 }
 
 .body {
@@ -45,6 +46,7 @@
     font-size: 40px;
     color: rgba(0, 0, 0, 0.458);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin: 10px;
 
 }
 
@@ -85,11 +87,13 @@
     display: flex;
     justify-content: left;
     width: 30%;
-    margin-top: 30px;
+    margin: 30px;
+
 }
 
 .img {
     width: 100%;
     height: auto;
     border-radius: 30px;
+    opacity: 0.8;
 }
