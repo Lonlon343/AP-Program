@@ -1,9 +1,12 @@
 [
   {
     "id": 2,
-    "title": "string",
-    "content": "string",
-    "category": "string",
+    "title": "sssss",
+    "content": "strissssssng",
+    "category": "study",
+    "tags": [
+      "work"
+    ],
     "created_at": "2026-04-28T11:05:58.544791+00:00"
   },
   {
@@ -11,13 +14,59 @@
     "title": "Hund",
     "content": "Katze",
     "category": "study",
+    "tags": [],
     "created_at": "2026-04-30T06:40:48.846759+00:00"
   },
   {
     "id": 4,
     "title": "title",
     "content": "This is a test note.",
-    "category": "test",
+    "category": "personal",
+    "tags": [],
     "created_at": "2026-04-30T10:19:15.630952+00:00"
+  },
+  {
+    "id": 5,
+    "title": "Team Meeting",
+    "content": "Discuss Q2 goals",
+    "category": "work",
+    "tags": [
+      "meeting",
+      "urgent"
+    ],
+    "created_at": "2026-04-30T13:56:46.817954+00:00"
+  },
+  {
+    "id": 6,
+    "title": "Homework",
+    "content": "doitnow",
+    "category": "study",
+    "tags": [
+      "urgent",
+      "work"
+    ],
+    "created_at": "2026-04-30T14:04:16.411886+00:00"
+  },
+  {
+    "id": 7,
+    "title": "Shopping",
+    "content": "Eggs,potatoes",
+    "category": "life",
+    "tags": [
+      "urgent",
+      "personal"
+    ],
+    "created_at": "2026-04-30T14:05:01.706773+00:00"
+  },
+  {
+    "id": 8,
+    "title": "Business Dinner",
+    "content": "Meet at Pub",
+    "category": "business",
+    "tags": [
+      "work",
+      "meeting"
+    ],
+    "created_at": "2026-04-30T14:05:50.227429+00:00"
   }
 ]

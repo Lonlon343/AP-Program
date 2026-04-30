@@ -43,6 +43,8 @@ class NoteCreate(BaseModel):
     title: str
     content: str
     category: str
+    tags: list[str] = []  # ← ADD THIS (default empty list)
+
 
 
 class Note(BaseModel):
@@ -50,6 +52,7 @@ class Note(BaseModel):
     title: str
     content: str
     category: str  # ← ADD THIS
+    tags: list[str] = []  # ← ADD THIS
     created_at: str
 
 
@@ -98,6 +101,7 @@ def create_note(note: NoteCreate) -> Note:
             title=note.title,
             content=note.content,
             category=note.category,
+            tags=note.tags,
             created_at=datetime.now(timezone.utc).isoformat()
         )
 
@@ -107,11 +111,42 @@ def create_note(note: NoteCreate) -> Note:
         return new_note
 
 @app.get("/notes")
-def list_notes() -> list[Note]:
-    """List all notes"""
-    notes_db, _ = load_notes()  # Load notes from JSON file
-    return notes_db  # Return the list of Note objects
-
+def list_notes(
+    category: str = None,
+    search: str = None,
+    tag: str = None
+) -> list[Note]:
+    """
+    List notes with optional filters
+    
+    - category: Filter by category
+    - search: Search in title and content
+    - tag: Filter by tag
+    """
+    notes_db, _ = load_notes()
+    
+    # Apply filters
+    filtered = []
+    for note in notes_db:
+        # Filter by category
+        if category and note.category != category:
+            continue
+        
+        # Filter by search term
+        if search:
+            search_lower = search.lower()
+            title_match = search_lower in note.title.lower()
+            content_match = search_lower in note.content.lower()
+            if not (title_match or content_match):
+                continue
+        
+        # Filter by tag
+        if tag and tag not in note.tags:
+            continue
+        
+        filtered.append(note)
+    
+    return filtered
 
 
 @app.get("/notes/category/{category}")
@@ -128,21 +163,29 @@ def get_notes_by_category(category: str):
 
 @app.get("/notes/stats")
 def get_notes_stats():
-    """Get statistics about notes"""
-    
-    notes_db, _ = load_notes()  # Load notes from JSON file
-    
-    # Count by category
+    notes_db, _ = load_notes()
     categories = {}
-    for note in notes_db:
-        if note.category in categories:
-            categories[note.category] += 1
-        else:
-            categories[note.category] = 1
+    tag_counts = {}
+    unique_tags = set()
     
+    for note in notes_db:
+        # Count categories
+        categories[note.category] = categories.get(note.category, 0) + 1
+        # Count tags
+        for tag in note.tags:
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+            unique_tags.add(tag)
+
+    top_tags = sorted(
+        [{"tag": tag, "count": count} for tag, count in tag_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
     return {
         "total_notes": len(notes_db),
-        "by_category": categories
+        "by_category": categories,
+        "top_tags": top_tags,
+        "unique_tags_count": len(unique_tags)
     }
 
 @app.delete("/notes/{note_id}")
@@ -159,55 +202,55 @@ def delete_note(note_id: int):
     
     raise HTTPException(404, "Note not found")
 
-#######################
-# DAY 3 
-#######################
-
-#CRUD - Create, Read, Update, Delete
 
 @app.get("/queryparameters")
 def query_parameters(param1: str = None, param2: int = None) -> dict:
 
     namen = ['Leon', 'Lisa', 'Lena', 'Lukas', 'Laura']
 
-
     if not param1:
-        return {"namen":namen} 
-    
+        return {"namen": namen}
 
     namen_gefiltert = []
     for name in namen:
         if param1 in name:
-            namen_gefiltert.append(name) 
+            namen_gefiltert.append(name)
 
-
-
-    return {"param1": param1, 
-            "param2": param2,
-            "namen_gefiltert": namen_gefiltert
-            }
-
-"""query demonstration:"""
+    return {
+        "param1": param1,
+        "param2": param2,
+        "namen_gefiltert": namen_gefiltert
+    }
 
 
 @app.put("/notes/{note_id}")
-def update_note(note_id: int, note: NoteCreate) -> Note:
-    """Update a note by ID"""
-
+def update_note(note_id: int, note_update: NoteCreate) -> Note:
+    """Update an existing note"""
+    
     notes_db, _ = load_notes()
     
-    for i, existing_note in enumerate(notes_db):
-        if existing_note.id == note_id:
-            notes_db[i] = Note(
-                id=note_id,
-                title=note.title,
-                content=note.content,
-                category=note.category,
-                created_at=existing_note.created_at)
+    # Find the note
+    for i, note in enumerate(notes_db):
+        if note.id == note_id:
+            # Update note (keep id and created_at)
+            updated_note = Note(
+                id=note.id,
+                title=note_update.title,
+                content=note_update.content,
+                category=note_update.category,
+                tags=note_update.tags,
+                created_at=note.created_at
+            )
             
+            notes_db[i] = updated_note
             save_notes(notes_db)
-            return notes_db[i]
-        raise HTTPException(404, "Note not found")
+            return updated_note
+    
+    # Not found
+    raise HTTPException(
+        status_code=404,
+        detail=f"Note with ID {note_id} not found"
+    )
 
 ##@app.get("/notes/{note_tag}")  
 #def get_note_by_tag(note_tag: str):
@@ -219,4 +262,63 @@ def update_note(note_id: int, note: NoteCreate) -> Note:
     #        return note
     
     #raise HTTPException(404, "Note not found")
+
+@app.get("/tags")
+def list_tags() -> list[str]:
+    """Get all unique tags from all notes"""
+    
+    notes_db, _ = load_notes()
+    
+    # Collect all tags
+    all_tags = set()
+    for note in notes_db:
+        for tag in note.tags:
+            all_tags.add(tag)
+    
+    # Return sorted list
+    return sorted(list(all_tags))
+
+@app.get("/tags/{tag_name}/notes")
+def get_notes_by_tag(tag_name: str) -> list[Note]:
+    """Get all notes with a specific tag"""
+    
+    notes_db, _ = load_notes()
+    
+    # Filter notes by tag
+    filtered = []
+    for note in notes_db:
+        if tag_name in note.tags:
+            filtered.append(note)
+    
+    return filtered
+
+# Task3
+
+@app.get("/categories")
+def list_categories() -> list[str]:
+    """Get all unique categories from all notes"""
+    notes_db, _ = load_notes()
+    
+    # Collect unique categories
+    unique_categories = set()
+    for note in notes_db:
+        unique_categories.add(note.category)
+    
+    # Return sorted list
+    return sorted(list(unique_categories))
+
+@app.get("/categories/{category_name}/notes")
+def get_notes_by_category(category_name: str) -> list[Note]:
+    """Get all notes in a specific category"""
+    notes_db, _ = load_notes()
+    
+    # Filter notes by category
+    filtered = []
+    for note in notes_db:
+        if note.category == category_name:
+            filtered.append(note)
+    
+    return filtered
+
+# Task4
 

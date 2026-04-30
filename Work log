@@ -114,15 +114,32 @@ Statistics worked good but I had to define notes_db again.
 #### 1. ✅ What did I accomplish?
 
 Add query selector. Namen gefiltert. Ausnahmen bestimmt. Gelernt warum Zahlen wie Telefonnummern lieber im String gespeichert werden sollten. 
-
+Bei get stats ist mir aufgefallen, dass ich beim return command keine tags angeben muss und trotzdem alle Informationen zu allen Notes bekomme. 
+Wir haben eine Rest API mit einigen Endpoints erstellt, die vollstaendig funktionsfaehig ist, indem sie alle Funktionen, wie posten, loeschen etc. erfuellt.
 
 
 ---
 
 #### 2. 🚧 What challenges did I face?
 
-
-
+Um die stats richtig anzuzeigen habe ich KI befragt um herauszufinden, wie ich am besten die Top Tags und Unique Tags anzeigen kann. Zunaechst hatte ich folgenden Output: 
+{
+  "total_notes": 7,
+  "by_category": {
+    "study": 3,
+    "test": 1,
+    "work": 1,
+    "life": 1,
+    "business": 1
+  },
+  "top_tags": [
+    "work",
+    "urgent",
+    "meeting"
+  ],
+  "unique_tags_count": 4
+}
+Ich habe nicht gesehen, dass wir counter implementieren sollten, deswegen habe ich geschaut, wie ich das ohne counter erstellen kann und es scheint nun ganz gut zu funktionieren.
 
 
 
