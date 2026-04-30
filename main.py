@@ -7,7 +7,7 @@ from pathlib import Path
 app = FastAPI(
     title="Meine erste FastAPI Anwendung",
     description="Simple note management API built with FastAPI",
-    version="1.0.0"
+    version="1.2.0"
 )
 
 
@@ -154,7 +154,68 @@ def delete_note(note_id: int):
     for i, note in enumerate(notes_db):
         if note.id == note_id:
             notes_db.pop(i)
-            save_notes()
+            save_notes(notes_db)
             return {"message": "Note deleted"}
     
     raise HTTPException(404, "Note not found")
+
+#######################
+# DAY 3 
+#######################
+
+#CRUD - Create, Read, Update, Delete
+
+@app.get("/queryparameters")
+def query_parameters(param1: str = None, param2: int = None) -> dict:
+
+    namen = ['Leon', 'Lisa', 'Lena', 'Lukas', 'Laura']
+
+
+    if not param1:
+        return {"namen":namen} 
+    
+
+    namen_gefiltert = []
+    for name in namen:
+        if param1 in name:
+            namen_gefiltert.append(name) 
+
+
+
+    return {"param1": param1, 
+            "param2": param2,
+            "namen_gefiltert": namen_gefiltert
+            }
+
+"""query demonstration:"""
+
+
+@app.put("/notes/{note_id}")
+def update_note(note_id: int, note: NoteCreate) -> Note:
+    """Update a note by ID"""
+
+    notes_db, _ = load_notes()
+    
+    for i, existing_note in enumerate(notes_db):
+        if existing_note.id == note_id:
+            notes_db[i] = Note(
+                id=note_id,
+                title=note.title,
+                content=note.content,
+                category=note.category,
+                created_at=existing_note.created_at)
+            save_notes(notes_db)
+            return notes_db[i]
+        
+
+##@app.get("/notes/{note_tag}")  
+#def get_note_by_tag(note_tag: str):
+ #   """Get a note by searching for a tag in the title or content"""
+#
+ #   notes_db, _ = load_notes()
+  #  for note in notes_db:
+   #     if note_tag in note.title or note_tag in note.content:
+    #        return note
+    
+    #raise HTTPException(404, "Note not found")
+

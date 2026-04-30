@@ -56,16 +56,14 @@ _Explain how you overcame the challenges or what help you needed._
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
+Wir haben ein paar Grundlagen nachgeholt und dann eine API Schnittstelle bzw mehrere in python programmiert. Ich habe bereits mehrere API's benutzt, doch nur mit API Schluesseln. Das selber erstellen mit Fastapi gab mir ein neues Verstaendnis davon, wie API's funktionieren und aufgebaut sind. Unklar ist mir noch, wie ich den API call in eine Webseite integrieren kann ohne in der URL danach zu rufen.
 
 
 ---
 
 #### 2. 🚧 What challenges did I face?
 
-
+Hat alles soweit gut funktioniert.
 
 
 
@@ -85,10 +83,7 @@ _Explain how you overcame the challenges or what help you needed._
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
-
+Mehrere API Calls erstellt mit unterschiedlichen Aufgaben. Der API Aufruf erstellt Notizen mit eigen benannten Strings in einer json Datei mit POST. Mit GET kann man ueber Fastapi, die Dateien aufrufen und einordnen. Dadurch werden sie dann z.B. nach Kategorie oder Anzahl aufgelistet.
 
 ---
 
@@ -118,7 +113,7 @@ Statistics worked good but I had to define notes_db again.
 
 #### 1. ✅ What did I accomplish?
 
-
+Add query selector. Namen gefiltert. Ausnahmen bestimmt. Gelernt warum Zahlen wie Telefonnummern lieber im String gespeichert werden sollten. 
 
 
 
