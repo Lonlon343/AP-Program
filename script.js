@@ -395,9 +395,23 @@ function createFallingShape(isHex = false) {
     shape.dataset.isHex = isHex ? '1' : '0';
 }
 
+// --- Performance Enhancements ---
+// Cache geo-shape list for animation
+let geoShapeCache = [];
+let geoShapeCacheTime = 0;
+function getGeoShapesCached() {
+    const now = performance.now();
+    if (now - geoShapeCacheTime > 100) { // update every 100ms
+        geoShapeCache = Array.from(document.querySelectorAll('.geo-shape'));
+        geoShapeCacheTime = now;
+    }
+    return geoShapeCache;
+}
+
 function animateFallingShapes() {
-    const shapes = Array.from(document.querySelectorAll('.geo-shape'));
-    shapes.forEach(shape => {
+    const shapes = getGeoShapesCached();
+    for (let i = 0; i < shapes.length; i++) {
+        const shape = shapes[i];
         let top = parseFloat(shape.style.top);
         if (isNaN(top)) top = -60;
         const speed = parseFloat(shape.dataset.speed || '2');
@@ -405,7 +419,6 @@ function animateFallingShapes() {
         shape.style.top = top + 'px';
         // Respawn at top if out of view
         if (top > window.innerHeight + 60) {
-            // Penalty for missing a shape
             if (!window.__netGameGameOver) {
                 window.__netGameScore = Math.max(0, (window.__netGameScore || 0) - 5);
                 if (window.__netGameUpdateScore) window.__netGameUpdateScore();
@@ -413,7 +426,6 @@ function animateFallingShapes() {
             shape.style.left = (Math.random() * 90) + '%';
             shape.style.top = '-60px';
             shape.dataset.speed = (Math.random() * 2.5 + 2.0).toString();
-            // 1 in 30 chance to be a hexagon
             if (Math.random() < 1/30) {
                 shape.classList.add('hex-shape');
                 shape.style.background = 'rgba(220,38,38,0.7)';
@@ -430,12 +442,12 @@ function animateFallingShapes() {
                 shape.dataset.isHex = '0';
             }
         }
-    });
+    }
 }
 
-// Explosion feedback
+// Limit explosion particles for performance
 function createExplosion(x, y, color = '#06b6d4') {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 6; i++) { // was 12
         const part = document.createElement('div');
         part.className = 'explosion-part';
         part.style.position = 'fixed';
@@ -448,7 +460,7 @@ function createExplosion(x, y, color = '#06b6d4') {
         part.style.pointerEvents = 'none';
         part.style.zIndex = 2000;
         part.style.opacity = 0.8;
-        part.style.transform = `translate(-50%, -50%) rotate(${(360/12)*i}deg)`;
+        part.style.transform = `translate(-50%, -50%) rotate(${(360/6)*i}deg)`;
         part.style.transition = 'all 0.5s cubic-bezier(.7,1.7,.7,1)';
         document.body.appendChild(part);
         setTimeout(() => {
@@ -459,7 +471,27 @@ function createExplosion(x, y, color = '#06b6d4') {
     }
 }
 
-// Patch game logic to support falling shapes and explosion
+// Throttle getBoundingClientRect in getShapeCentersWithElements
+function getShapeCentersWithElementsThrottled() {
+    const now = performance.now();
+    if (!getShapeCentersWithElementsThrottled.cache || now - getShapeCentersWithElementsThrottled.time > 50) {
+        const shapes = getGeoShapesCached();
+        getShapeCentersWithElementsThrottled.cache = shapes.map(shape => {
+            const rect = shape.getBoundingClientRect();
+            return {
+                el: shape,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+                r: Math.max(rect.width, rect.height) / 2,
+                isHex: shape.dataset.isHex === '1'
+            };
+        });
+        getShapeCentersWithElementsThrottled.time = now;
+    }
+    return getShapeCentersWithElementsThrottled.cache;
+}
+
+// Patch game loop to use throttled version
 function initNetGame_Falling() {
     let score = 0;
     let gameOver = false;
@@ -535,20 +567,6 @@ function initNetGame_Falling() {
         window.__netGameGameOver = false;
     }
 
-    function getShapeCentersWithElements() {
-        const shapes = Array.from(document.querySelectorAll('.geo-shape'));
-        return shapes.map(shape => {
-            const rect = shape.getBoundingClientRect();
-            return {
-                el: shape,
-                x: rect.left + rect.width / 2,
-                y: rect.top + rect.height / 2,
-                r: Math.max(rect.width, rect.height) / 2,
-                isHex: shape.dataset.isHex === '1'
-            };
-        });
-    }
-
     let mouse = { x: null, y: null };
     document.addEventListener('mousemove', e => {
         mouse.x = e.clientX;
@@ -557,20 +575,18 @@ function initNetGame_Falling() {
 
     function checkCatches() {
         if (gameOver) return;
-        const shapes = getShapeCentersWithElements();
-        shapes.forEach(shape => {
+        const shapes = getShapeCentersWithElementsThrottled();
+        for (let i = 0; i < shapes.length; i++) {
+            const shape = shapes[i];
             if (mouse.x !== null && mouse.y !== null) {
                 const dx = shape.x - mouse.x;
                 const dy = shape.y - mouse.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < shape.r + 24) { // 24px catch radius
-                    // Explosion feedback
+                if (dist < shape.r + 24) {
                     createExplosion(shape.x, shape.y, shape.isHex ? '#dc2626' : '#06b6d4');
-                    // Respawn shape at top
                     shape.el.style.left = (Math.random() * 90) + '%';
                     shape.el.style.top = '-60px';
                     shape.el.dataset.speed = (Math.random() * 2.5 + 2.0).toString();
-                    // 1 in 30 chance to be a hexagon
                     if (Math.random() < 1/30) {
                         shape.el.classList.add('hex-shape');
                         shape.el.style.background = 'rgba(220,38,38,0.7)';
@@ -586,7 +602,6 @@ function initNetGame_Falling() {
                         shape.el.style.boxShadow = '0 4px 24px 0 rgba(59,130,246,0.25), 0 1.5px 6px 0 rgba(139,92,246,0.15)';
                         shape.el.dataset.isHex = '0';
                     }
-                    // Score logic
                     if (shape.isHex) {
                         score = Math.max(0, score - 10);
                     } else {
@@ -599,7 +614,7 @@ function initNetGame_Falling() {
                     }
                 }
             }
-        });
+        }
     }
 
     function gameLoop() {
