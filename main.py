@@ -204,9 +204,10 @@ def update_note(note_id: int, note: NoteCreate) -> Note:
                 content=note.content,
                 category=note.category,
                 created_at=existing_note.created_at)
+            
             save_notes(notes_db)
             return notes_db[i]
-        
+        raise HTTPException(404, "Note not found")
 
 ##@app.get("/notes/{note_tag}")  
 #def get_note_by_tag(note_tag: str):
