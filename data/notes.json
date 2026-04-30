@@ -12,5 +12,12 @@
     "content": "Katze",
     "category": "study",
     "created_at": "2026-04-30T06:40:48.846759+00:00"
+  },
+  {
+    "id": 4,
+    "title": "title",
+    "content": "This is a test note.",
+    "category": "test",
+    "created_at": "2026-04-30T10:19:15.630952+00:00"
   }
 ]
