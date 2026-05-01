@@ -148,6 +148,8 @@ Kleinere Probleme, wie, dass sqlmodel sich nicht importieren laesst, da es ins f
 
 Ich musste das Codepiece zur Erstellung der db umschreiben, damit es die db erstellt und many to many relationships erstellt. Tag war nested in note und Felder waren nicht richtig eingerueckt. Ich musste auch NoteTagLink einfuegen, um link table explizit herzustellen. Dazu gab es einen Name clash mit pydantic model, daher umbenennung der SQL table class.
 
+Es war sehr wichtig, die Reihenfolge der Codebloecke zu beachten, da es sonst oft zu Problemen kam, bei dem dem Editor eine Instanz unbekannt erschien.
+
 ---
 
 #### 3. 💡 How did I overcome them?

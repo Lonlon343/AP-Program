@@ -6,12 +6,48 @@ from pathlib import Path
 from sqlmodel import SQLModel, Field, Session, create_engine, Relationship
 from datetime import datetime
 from typing import Optional
+from sqlmodel import select, or_, col
+
 
 app = FastAPI(
     title="Meine erste FastAPI Anwendung",
     description="Simple note management API built with FastAPI",
     version="1.2.0"
 )
+
+from typing import Annotated
+from fastapi import Depends
+
+def get_session():
+    """Create a new database session for each request"""
+    with Session(engine) as session:
+        yield session
+
+# Type alias for cleaner code
+SessionDep = Annotated[Session, Depends(get_session)]
+
+#Task 6 Step: 4
+
+from pydantic import BaseModel
+
+# API Input model
+class NoteCreate(BaseModel):
+    title: str
+    content: str
+    category: str
+    tags: list[str] = []
+
+# API Output model
+class NoteResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    category: str
+    tags: list[str]
+    created_at: str
+    
+    class Config:
+        from_attributes = True
 
 
 @app.get("/")
@@ -93,71 +129,99 @@ def save_notes(notes_db):
 
 
 @app.post("/notes", status_code=201)
+def create_note(note: NoteCreate, session: SessionDep) -> NoteResponse:
+    """Create a new note in database"""
+    
+    # Create note
+    db_note = Note(
+        title=note.title,
+        content=note.content,
+        category=note.category
+    )
+    
+    # Get or create tags (case-insensitive, deduplicated)
+    tag_objects = []
+    seen_tags = set()
+    
+    for tag_name in note.tags:
+        tag_name_lower = tag_name.lower().strip()
+        if not tag_name_lower or tag_name_lower in seen_tags:
+            continue
+        
+        seen_tags.add(tag_name_lower)
+        
+        # Find existing tag or create new one
+        statement = select(Tag).where(Tag.name == tag_name_lower)
+        existing_tag = session.exec(statement).first()
+        
+        if existing_tag:
+            tag_objects.append(existing_tag)
+        else:
+            new_tag = Tag(name=tag_name_lower)
+            session.add(new_tag)
+            tag_objects.append(new_tag)
+    
+    db_note.tags = tag_objects
+    
+    session.add(db_note)
+    session.commit()
+    session.refresh(db_note)  # Get the generated ID and load relationships
+    
+    # Convert to response model
+    return NoteResponse(
+        id=db_note.id,
+        title=db_note.title,
+        content=db_note.content,
+        category=db_note.category,
+        tags=[tag.name for tag in db_note.tags],
+        created_at=db_note.created_at.isoformat()
+    )
 
-def create_note(note: NoteCreate) -> Note:
-        """Create a new note"""
-        
-        notes_db, notes_id_counter = load_notes()
-        
-        new_note = Note(
-            id=notes_id_counter,
-            title=note.title,
-            content=note.content,
-            category=note.category,
-            tags=note.tags,
-            created_at=datetime.now(timezone.utc).isoformat()
-        )
-
-        notes_db.append(new_note)  # Add new note to the in-memory list
-        save_notes(notes_db)  # Save the updated list to the JSON file
-        
-        return new_note
 
 @app.get("/notes")
 def list_notes(
+    session: SessionDep,
     category: str = None,
     search: str = None,
-    tag: str = None,
-    created_after: str = None,
-    created_before: str = None
-) -> list[Note]:
-    """
-    List notes with optional filters
+    tag: str = None
+) -> list[NoteResponse]:
+    """List notes with filters"""
     
-    - category: Filter by category
-    - search: Search in title and content
-    - tag: Filter by tag
-    """
-    notes_db, _ = load_notes()
+    # Build query
+    statement = select(Note)
     
     # Apply filters
-    filtered = []
-    for note in notes_db:
-        # Filter by category
-        if category and note.category != category:
-            continue
-        
-        # Filter by search term
-        if search:
-            search_lower = search.lower()
-            title_match = search_lower in note.title.lower()
-            content_match = search_lower in note.content.lower()
-            if not (title_match or content_match):
-                continue
-        
-        if created_after and note.created_at < created_after:
-            continue  # Skip notes created before the threshold
-
-        if created_before and note.created_at > created_before:
-            continue  # Skip notes created after the threshold
-        
-        # Filter by tag
-        if tag and tag not in note.tags:
-            continue
-        
-        filtered.append(note)
+    if category:
+        statement = statement.where(Note.category == category)
     
-    return filtered
+    if search:
+        search_lower = search.lower()
+        statement = statement.where(
+            or_(
+                col(Note.title).ilike(f"%{search_lower}%"),
+                col(Note.content).ilike(f"%{search_lower}%")
+            )
+        )
+    
+    if tag:
+        tag_lower = tag.lower()
+        statement = statement.join(Note.tags).where(Tag.name == tag_lower)
+    
+    # Execute query
+    notes = session.exec(statement).all()
+    
+    # Convert to response models
+    return [
+        NoteResponse(
+            id=n.id,
+            title=n.title,
+            content=n.content,
+            category=n.category,
+            tags=[tag.name for tag in n.tags],
+            created_at=n.created_at.isoformat()
+        )
+        for n in notes
+    ]
 
 
 @app.get("/notes/category/{category}")
@@ -414,145 +478,10 @@ SQLModel.metadata.create_all(engine)
 
 #Task 6 Step: 3
 
-from typing import Annotated
-from fastapi import Depends
 
-def get_session():
-    """Create a new database session for each request"""
-    with Session(engine) as session:
-        yield session
-
-# Type alias for cleaner code
-SessionDep = Annotated[Session, Depends(get_session)]
-
-#Task 6 Step: 4
-
-from pydantic import BaseModel
-
-# API Input model
-class NoteCreate(BaseModel):
-    title: str
-    content: str
-    category: str
-    tags: list[str] = []
-
-# API Output model
-class NoteResponse(BaseModel):
-    id: int
-    title: str
-    content: str
-    category: str
-    tags: list[str]
-    created_at: str
-    
-    class Config:
-        from_attributes = True
 
 
 #Task 6 Step: 5 Update create_note endpoint to use database
-
-@app.post("/notes", status_code=201)
-def create_note(note: NoteCreate, session: SessionDep) -> NoteResponse:
-    """Create a new note in database"""
-    
-    # Create note
-    db_note = Note(
-        title=note.title,
-        content=note.content,
-        category=note.category
-    )
-    
-    # Get or create tags (case-insensitive, deduplicated)
-    tag_objects = []
-    seen_tags = set()
-    
-    for tag_name in note.tags:
-        tag_name_lower = tag_name.lower().strip()
-        if not tag_name_lower or tag_name_lower in seen_tags:
-            continue
-        
-        seen_tags.add(tag_name_lower)
-        
-        # Find existing tag or create new one
-        statement = select(Tag).where(Tag.name == tag_name_lower)
-        existing_tag = session.exec(statement).first()
-        
-        if existing_tag:
-            tag_objects.append(existing_tag)
-        else:
-            new_tag = Tag(name=tag_name_lower)
-            session.add(new_tag)
-            tag_objects.append(new_tag)
-    
-    db_note.tags = tag_objects
-    
-    session.add(db_note)
-    session.commit()
-    session.refresh(db_note)  # Get the generated ID and load relationships
-    
-    # Convert to response model
-    return NoteResponse(
-        id=db_note.id,
-        title=db_note.title,
-        content=db_note.content,
-        category=db_note.category,
-        tags=[tag.name for tag in db_note.tags],
-        created_at=db_note.created_at.isoformat()
-    )
-
-
-
-#Task 6 Step: 6 Update List endpoints
-
-from sqlmodel import select, or_, col
-
-@app.get("/notes")
-def list_notes(
-    session: SessionDep,
-    category: str = None,
-    search: str = None,
-    tag: str = None
-) -> list[NoteResponse]:
-    """List notes with filters"""
-    
-    # Build query
-    statement = select(Note)
-    
-    # Apply filters
-    if category:
-        statement = statement.where(Note.category == category)
-    
-    if search:
-        search_lower = search.lower()
-        statement = statement.where(
-            or_(
-                col(Note.title).ilike(f"%{search_lower}%"),
-                col(Note.content).ilike(f"%{search_lower}%")
-            )
-        )
-    
-    if tag:
-        tag_lower = tag.lower()
-        statement = statement.join(Note.tags).where(Tag.name == tag_lower)
-    
-    # Execute query
-    notes = session.exec(statement).all()
-    
-    # Convert to response models
-    return [
-        NoteResponse(
-            id=n.id,
-            title=n.title,
-            content=n.content,
-            category=n.category,
-            tags=[tag.name for tag in n.tags],
-            created_at=n.created_at.isoformat()
-        )
-        for n in notes
-    ]
-
-
-#Task 6: Step 7 - Update Other Endpoints
 
 
     
