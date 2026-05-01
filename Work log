@@ -117,6 +117,8 @@ Add query selector. Namen gefiltert. Ausnahmen bestimmt. Gelernt warum Zahlen wi
 Bei get stats ist mir aufgefallen, dass ich beim return command keine tags angeben muss und trotzdem alle Informationen zu allen Notes bekomme. 
 Wir haben eine Rest API mit einigen Endpoints erstellt, die vollstaendig funktionsfaehig ist, indem sie alle Funktionen, wie posten, loeschen etc. erfuellt.
 
+Abrufen von Notizen zu bestimmten Daten und anderen Kategorien und Tags.
+Das updaten einer ganzen Notiz oder expliziten Teilen davon, wie zum Beispiel, nur der Kategorie mit dem API call: PATCH.
 
 ---
 
@@ -141,16 +143,18 @@ Um die stats richtig anzuzeigen habe ich KI befragt um herauszufinden, wie ich a
 }
 Ich habe nicht gesehen, dass wir counter implementieren sollten, deswegen habe ich geschaut, wie ich das ohne counter erstellen kann und es scheint nun ganz gut zu funktionieren.
 
+Task 6
+Kleinere Probleme, wie, dass sqlmodel sich nicht importieren laesst, da es ins falsche environment insalliert ist. Ich bin mit pip und uv durcheinandergekommen.
 
+Ich musste das Codepiece zur Erstellung der db umschreiben, damit es die db erstellt und many to many relationships erstellt. Tag war nested in note und Felder waren nicht richtig eingerueckt. Ich musste auch NoteTagLink einfuegen, um link table explizit herzustellen. Dazu gab es einen Name clash mit pydantic model, daher umbenennung der SQL table class.
 
 ---
 
 #### 3. 💡 How did I overcome them?
 
+Um das Problem mit den falschen environments zu analysieren habe ich copilot befragt. Nachdem ich ihm gesagt habe, dass wir das Projekt mit uv machen, hat er den Fehler sehr schnell gefunden und auch automatisch das sql model ueber das Terminal geladen. 
 
-
-
-
+Auch beim erstellen der Notes.db musste ich Ki befragen um zu sehen welche Dinge gefixt werden muessen.
 
 ---
 
