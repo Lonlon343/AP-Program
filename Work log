@@ -150,13 +150,28 @@ Ich musste das Codepiece zur Erstellung der db umschreiben, damit es die db erst
 
 Es war sehr wichtig, die Reihenfolge der Codebloecke zu beachten, da es sonst oft zu Problemen kam, bei dem dem Editor eine Instanz unbekannt erschien.
 
+Nicht immer einfach herauszufinden, warum die geupdateten API endpoints nicht auf die notes.db SQL Database gerichtet sind.
+
+Bei der Transformation der endpoints zu der SQL Datenbank, sind manche Funktionen anders. Was mir viel Probleme bereitet hat, ist, dass ein Tag Objekte braucht kein string. Dadurch ist es manchmal sehr schwer moeglich zu sehen was der Fehler ist ohne, dass man weiss wie SQL Datenbanken genau aufgebaut sind, oder man nicht alle Begrifflichkeiten kennt. 
+
+Beim erstellen der Fehlermeldungen war ich mir nicht immer sicher ob ich jetzt note oder notes verwenden muss und es war nicht immer klar auf welches note das bezogen war.
+
+
 ---
 
 #### 3. 💡 How did I overcome them?
 
 Um das Problem mit den falschen environments zu analysieren habe ich copilot befragt. Nachdem ich ihm gesagt habe, dass wir das Projekt mit uv machen, hat er den Fehler sehr schnell gefunden und auch automatisch das sql model ueber das Terminal geladen. 
 
-Auch beim erstellen der Notes.db musste ich Ki befragen um zu sehen welche Dinge gefixt werden muessen.
+Auch beim erstellen der Notes.db musste ich Ki befragen um zu sehen welche Dinge gefixt werden muessen. Oft mussten Funktionen, die ich noch nicht kannte eingesetzt werden, wie exec usw. 
+
+
+Zu den Fehlermeldungen:
+Es hängt davon ab was die DB-Abfrage zurückgibt:
+
+session.get(NoteDB, note_id) → gibt ein einzelnes Objekt oder None zurück → Variable heißt note (Singular) → if not note prüft ob es None ist
+
+session.exec(...).all() → gibt immer eine Liste zurück, z.B. [] wenn nichts gefunden → Variable heißt notes (Plural) → if not notes prüft ob die Liste leer ist
 
 ---
 
