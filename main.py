@@ -4,12 +4,8 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 from sqlmodel import SQLModel, Field, Session, create_engine, Relationship
-from datetime import datetime
 from typing import Optional
 from sqlmodel import select, or_, col
-from sqlmodel import SQLModel, Field, Session, create_engine, Relationship
-from datetime import datetime
-from typing import Optional
 
 
 app = FastAPI(
@@ -137,7 +133,7 @@ class Note(BaseModel): # This is the internal model used for storing notes in me
 
 NOTES_FILE = Path("data/notes.json")  # Define path to JSON file for storing notes
 
-def load_notes():   
+def load_notes():   # for loading notes from JSON file. Returns list of Note objects and next ID counter
     """Load notes from JSON file and return notes list and next ID counter""" 
     notes_db = []  # Initialize empty notes list
     note_id_counter = 1  # Initialize ID counter to 1
@@ -157,7 +153,7 @@ def load_notes():
     return notes_db, note_id_counter
 
 
-def save_notes(notes_db):  # Add notes_db as parameter
+def save_notes(notes_db):  # Add notes_db as parameter. For save to JSON only
     """Save notes to JSON file after each change"""
     # Ensure data directory exists
     NOTES_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -166,6 +162,7 @@ def save_notes(notes_db):  # Add notes_db as parameter
         # Convert Note objects to dicts
         notes_data = [note.dict() for note in notes_db]
         json.dump(notes_data, f, indent=2)
+
 
 
 @app.post("/notes", status_code=201)  # POST für Erstellen von Notizen
@@ -181,8 +178,9 @@ def create_note(note: NoteCreate, session: SessionDep) -> NoteResponse:
     
     # Get or create tags (case-insensitive, deduplicated)
     tag_objects = []
-    seen_tags = set()
+    seen_tags = set() # To track seen tags and avoid duplicates
     
+    # Process tags from input, ensuring case-insensitivity and no duplicates
     for tag_name in note.tags:
         tag_name_lower = tag_name.lower().strip()
         if not tag_name_lower or tag_name_lower in seen_tags:
@@ -204,7 +202,7 @@ def create_note(note: NoteCreate, session: SessionDep) -> NoteResponse:
     db_note.tags = tag_objects
     
     session.add(db_note)
-    session.commit()
+    session.commit() 
     session.refresh(db_note)  # Get the generated ID and load relationships
     
     # Convert to response model
@@ -301,11 +299,12 @@ def get_notes_stats(session: SessionDep):
             tag_counts[tag.name] = tag_counts.get(tag.name, 0) + 1
             unique_tags.add(tag.name)
 
-    top_tags = sorted(
-        [{"tag": tag, "count": count} for tag, count in tag_counts.items()],
-        key=lambda x: x["count"],
-        reverse=True
-    )
+    # Sort tags by count
+    top_tags = []
+    for tag, count in tag_counts.items():
+        top_tags.append({"tag": tag, "count": count})
+    top_tags.sort(key=lambda x: x["count"], reverse=True)
+
     return {
         "total_notes": len(notes),
         "by_category": categories,
@@ -482,8 +481,6 @@ def get_notes_by_category(category_name: str, session: SessionDep) -> list[NoteR
 
 # Task4
 
-from typing import Optional
-
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
@@ -538,7 +535,3 @@ def partial_update_note(note_id: int, note_update: NoteUpdate, session: SessionD
 
 #Task 6 Step: 5 Update create_note endpoint to use database ^
 
-
-    
-
-    
