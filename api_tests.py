@@ -57,5 +57,3 @@ def create_note_for_testing():
         print("Failed to create note for GET testing")  
     return response.json()["id"]
 
-
-

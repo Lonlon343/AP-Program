@@ -283,6 +283,7 @@ def get_notes_by_category(category: str, session: SessionDep) -> list[NoteRespon
         for n in notes
     ]
 
+
 @app.get("/notes/stats")  # GET für Statistiken zu Notizen
 def get_notes_stats(session: SessionDep):
     statement = select(NoteDB)
@@ -311,6 +312,7 @@ def get_notes_stats(session: SessionDep):
         "top_tags": top_tags,
         "unique_tags_count": len(unique_tags)
     }
+
 
 @app.delete("/notes/{note_id}")  # DELETE für Löschen von Notizen
 def delete_note(note_id: int, session: SessionDep):
@@ -456,6 +458,7 @@ def list_categories(session: SessionDep) -> list[str]:
     # Return sorted list
     return sorted(list(unique_categories))
 
+
 @app.get("/categories/{category_name}/notes")  # GET für Abrufen von Notizen in einer Kategorie
 def get_notes_by_category(category_name: str, session: SessionDep) -> list[NoteResponse]:
     """Get all notes in a specific category"""
@@ -534,4 +537,3 @@ def partial_update_note(note_id: int, note_update: NoteUpdate, session: SessionD
 
 
 #Task 6 Step: 5 Update create_note endpoint to use database ^
-

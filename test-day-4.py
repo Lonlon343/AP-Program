@@ -75,3 +75,5 @@ def test_is_adult_negative_age():
        
         response = requests.get(f"{BASE_URL}is-adult/{age}")
         assert response.status_code == 400
+
+
