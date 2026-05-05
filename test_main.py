@@ -211,7 +211,7 @@ def test_notes_by_category():
     assert all(isinstance(note, dict) for note in data)
 
 
-def test_notes_statistics():
+def test_notes_statistics():   # failed bei elias
     """Test GET /notes/stats endpoint (Day 3 Task 2)"""
     response = requests.get(f"{BASE_URL}/notes/stats")
     assert response.status_code == 200
@@ -221,6 +221,7 @@ def test_notes_statistics():
     assert "by_category" in data
     assert "top_tags" in data
     assert "unique_tags_count" in data
+
 
 
 def test_patch_note():

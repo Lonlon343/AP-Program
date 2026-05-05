@@ -205,18 +205,18 @@ Beim Versuch, die Endpunkte so zu uebernehmen, wie es in der Praesentation gewol
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
-
+Tests bei Teampartnern ausprobiert und auf deren jeweilige API-Endpunkte angepasst.
+Pydantic Data Validation in die eigene API eingebaut: mit `Field()` wurden Laengenbeschraenkungen gesetzt, mit `@field_validator` eigene Regeln fuer Titel, Kategorie und Tags implementiert und mit `@model_validator` eine felduebergreifende Regel hinzugefuegt.
+Dadurch sind Eingaben jetzt klar eingeschraenkt — ungueltige Daten werden automatisch mit einem 422-Fehler abgelehnt, bevor sie in die Datenbank gelangen.
+Zusaetzlich wurde `NoteUpdate` fuer PATCH-Requests angepasst und ein eigenes Test-File `test_validation.py` mit gezielten Validierungstests erstellt.
 
 ---
 
 #### 2. 🚧 What challenges did I face?
 
-
-
-
+Field und field_validator war ein neues Konzept und ich musste erstmal reinkommen, damit zu arbeiten.
+Der Unterschied zwischen `@field_validator` und `@model_validator` war anfangs nicht klar. Bei `NoteUpdate` war es zusaetzlich tricky: die Validatoren muessen `None` explizit durchlassen, sonst schlaegt die Validierung fehl wenn ein Feld nicht mitgeschickt wird.
+Ausserdem musste ich den Unterschied zwischen `mode="before"` und `mode="after"` beim field_validator verstehen — je nachdem ob Pydantic den Wert schon umgewandelt hat oder noch nicht.
 
 
 ---
@@ -224,8 +224,11 @@ Beim Versuch, die Endpunkte so zu uebernehmen, wie es in der Praesentation gewol
 #### 3. 💡 How did I overcome them?
 
 
+Fuer die Tests bei den Teampartnern habe ich deren Endpunkte vorher kurz in der /docs Seite angeschaut, um zu verstehen welche Felder benoetigt werden.
 
+Um mich mit Field und field_validator vertraut zu machen, habe ich die Konzepte Schritt fuer Schritt ausprobiert. Zuerst einfache Laengenbeschraenkungen mit Field() eingebaut, dann schrittweise Validatoren hinzugefuegt. Durch das direkte Testen ueber die /docs Oberflaeche von FastAPI konnte ich sofort sehen, ob die Validierung wie erwartet funktioniert.
 
+Beim Cross-Field Validator (model_validator) hat mir der Vergleich mit field_validator geholfen: Sobald ich verstanden hatte, dass field_validator immer nur ein Feld sieht, war klar warum model_validator noetig ist, wenn zwei Felder gleichzeitig geprueft werden muessen.
 
 
 ---
