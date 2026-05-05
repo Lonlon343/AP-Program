@@ -187,7 +187,6 @@ def test_update_nonexistent_note():
 
 
 
-
 def test_list_categories():
     """Test GET /categories endpoint (Day 3 Task 3)"""
     response = requests.get(f"{BASE_URL}/categories")
@@ -310,7 +309,6 @@ def test_get_notes_by_tag_endpoint():
     assert isinstance(data, list)
     assert len(data) > 0
     assert all(tag in n["tags"] for n in data)
-
 
 
 
