@@ -237,27 +237,26 @@ Beim Cross-Field Validator (model_validator) hat mir der Vergleich mit field_val
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
+In der Vorlesung haben wir besprochen wie Decorator funktionieren. Anschliessend darauf haben wir ein Programm entwickelt, dass wie ein Cache funktionieren soll.
+Als Hausaufgabe, gab es eine neue Test_Suite, die wir ans laufen bringen sollen, sodass sie mit unseren API's testen kann.
+Zunaechst haben die meisten Tests gefailed, doch schon nach dem korrigieren einer response Meldung, in der API der main.py, konnte ein grossteil der Test erfolgreich gelingen. 
 
 
 ---
 
 #### 2. 🚧 What challenges did I face?
 
-
-
-
+Es war nicht einfach zu erkennen, welche Tests, warum nicht laufen. Der Bericht ueber das fehlschlagen des Tests gab mir nicht immer eine ersichtliche Antwort auf das Problem. 
+Das Herausfinden, welchen zusaetzlichen Import ich brauche, um beispielsweise response ans laufen zu bekommen.
 
 
 ---
 
 #### 3. 💡 How did I overcome them?
 
-
-
-
+Ich habe in der Fast API Dokumentation nach einer Loesung gegen das Fehlschlagen der Tests gesucht. Zusaetzlich habe ich mir eine Analyse des Fehlerberichts von KI geben lassen und mir erklaeren lassen, was bei welcher API korrigiert werden muss. Ich habe explizit angegeben, dass sie mir keinen Code schreiben soll, sondern mir erklaeren soll, wie ich das Problem am besten loesen kann.
+Oft waren es responses auf Fehlermeldungen und fehlende Filter die korrigiert werden mussten. Auch waren Bedingungen, die vorher in die API einprogrammiert worden waren, zu strikt gesetzt und nicht kompatibel mit der neuen test_suite.py.
+In den Tests wird vorgegeben, dass Notiz Nummer 1000 nicht existiert, dadurch, dass ich aber schon einige Tests durchlaufen habe haben sich mehr als 1000 Test Notizen angesammelt. Dadurch hat der Test die Meldung: 200 anstatt 404 herausgegeben. Um den Test durchlaufen zu lassen musste ich die Datenbank loeschen, so dass die Notiz mit der ID 1000 nicht mehr existiert.
 
 
 ---
