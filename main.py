@@ -166,7 +166,7 @@ class NoteDB(SQLModel, table=True): # This is the database model for notes (what
 
 
 # Create database engine
-engine = create_engine("sqlite:///notes-tests.db")
+engine = create_engine("sqlite:///notes.db")
 
 # Create tables (NoteDB, Tag, and NoteTagLink)
 SQLModel.metadata.create_all(engine)

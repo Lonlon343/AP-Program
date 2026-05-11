@@ -267,19 +267,14 @@ In den Tests wird vorgegeben, dass Notiz Nummer 1000 nicht existiert, dadurch, d
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
-
+Frontend mit Streamlit aufgebaut. Wir haben Buttons programmiert und mit einer Github API verbunden. Damit konnten wir durch den Klick auf einen Button von Streamlit, Informationen dieser API aufrufen. Die Github API gibt immer eine neue Ausrede um "nein" zu sagen aus. Dann haben wir zwei Endpunkte mit unserem Streamlit Frontend programmiert.
+Dafuer haben wir das erstellen einer Notiz mithilfe einer Form in Streamlit erstellt. Desweiteren, werden die Notizen, die in der Datenbank gespeichert sind nun benutzerfreundlich angezeigt. Ich habe aufgrund einer hohen Anzahl von Eintraegen, wegen vorheriger Testlauefe mit Pytest, die Anzahl der angezeigten Notizen auf 20 gecapt. Auch habe ich einen Endpunkt fuer das loeschen von Notizen anhand ihrer ID eingebaut. Man kann nun auch Notizen loeschen, wenn man durch die Notizenliste scrollt und in die Details der jeweiligen Notiz schaut. 
 
 ---
 
 #### 2. 🚧 What challenges did I face?
 
-
-
-
-
+Beim erstellen der Notizen habe ich keine Rueckmeldung darueber einbauen koennen, dass ich eine Notiz erstellt habe, daher habe ich gedacht, dass es nicht funktioniert. Am Ende habe ich herausgefunden, dass ich eine zusaetzliche Datenbank fuer die Pytests erstellt habe, und der Speicherort der Notizen auf diese gerichtet war. Ich habe beide Datenbanken geloescht und in der main.py nur noch eine notes.db angegeben. Nun werden alle Notizen in der neuen Datenbank gespeichert und ich kann sie am Ende der Liste finden.
 
 ---
 
