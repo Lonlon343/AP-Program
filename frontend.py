@@ -34,14 +34,6 @@ def get_notes():
         st.error(f"Fehler beim Laden der Notizen: {e}")
         return []
 
-def delete_note(note_id):
-    try:
-        resp = requests.delete(f"{API_URL}/notes/{note_id}")
-        resp.raise_for_status()
-        return True
-    except Exception as e:
-        return False
-
 def create_note(title, content, category, tags):
     payload = {
         "title": title,
@@ -53,29 +45,20 @@ def create_note(title, content, category, tags):
         resp = requests.post(f"{API_URL}/notes", json=payload)
         resp.raise_for_status()
         return True, resp.json()
-    except requests.exceptions.ConnectionError:
-        return False, "API nicht erreichbar – läuft der FastAPI Server? (uvicorn main:app)"
     except Exception as e:
-        detail = ""
-        if hasattr(e, "response") and e.response is not None:
-            try:
-                detail = e.response.json().get("detail", "")
-            except Exception:
-                detail = e.response.text
-        return False, detail or str(e)
-
-
+        st.error(f"Fehler beim Erstellen: {e}")
+        return False, None
 
 st.title("Notiz-App (Streamlit + FastAPI)")
 
-# --- Neue Notiz erstellen ---
-st.header("Neue Notiz anlegen")
-
+# --- Session State initialisieren ---
 if "note_created" not in st.session_state:
     st.session_state.note_created = False
-if "note_error" not in st.session_state:
-    st.session_state.note_error = ""
+if "delete_result" not in st.session_state:
+    st.session_state.delete_result = None  # None | "success" | "error"
 
+# --- Neue Notiz erstellen ---
+st.header("Neue Notiz anlegen")
 with st.form("create_note_form"):
     title = st.text_input("Titel")
     content = st.text_area("Inhalt")
@@ -85,40 +68,46 @@ with st.form("create_note_form"):
     if submitted:
         tag_list = [t.strip() for t in tags.split(",") if t.strip()]
         ok, result = create_note(title, content, category, tag_list)
-        if ok:
-            st.session_state.note_created = True
-            st.session_state.note_error = ""
-        else:
-            st.session_state.note_error = result
-            st.session_state.note_created = False
+        st.session_state.note_created = ok
 
-if st.session_state.note_error:
-    st.error(f"Fehler: {st.session_state.note_error}")
-
+# Rückmeldung außerhalb des Forms — kein st.rerun(), damit die Meldung sichtbar bleibt
 if st.session_state.note_created:
-    st.toast("Notiz erfolgreich erstellt!", icon="✅")
+    st.balloons()
+    st.success("✅ Notiz erfolgreich erstellt!")
     st.session_state.note_created = False
-    st.rerun()
+
 
 # --- Notiz per ID löschen ---
-st.header("Notiz per ID löschen")
+def delete_note(note_id: int) -> bool:
+    try:
+        resp = requests.delete(f"{API_URL}/notes/{note_id}")
+        resp.raise_for_status()
+        return True
+    except Exception:
+        return False
 
-if "delete_error" not in st.session_state:
-    st.session_state.delete_error = ""
+st.header("Notiz löschen")
+all_notes = get_notes()
+if not all_notes:
+    st.info("Keine Notizen vorhanden.")
+else:
+    note_options = {f"[ID {n['id']}] {n['title']}": n["id"] for n in all_notes}
+    with st.form("delete_note_form"):
+        selected = st.selectbox("Notiz auswählen", options=list(note_options.keys()))
+        delete_submitted = st.form_submit_button("Löschen")
+        if delete_submitted:
+            st.session_state.delete_result = "success" if delete_note(note_options[selected]) else "error"
+            st.session_state.delete_id = note_options[selected]
+            st.session_state.delete_title = selected
 
-with st.form("delete_note_form"):
-    note_id = st.number_input("Notiz-ID", min_value=1, step=1)
-    submitted_delete = st.form_submit_button("Löschen")
-    if submitted_delete:
-        if delete_note(int(note_id)):
-            st.session_state.delete_error = ""
-            st.toast(f"Notiz mit ID {int(note_id)} gelöscht!", icon="🗑️")
-            st.rerun()
-        else:
-            st.session_state.delete_error = f"Notiz mit ID {int(note_id)} nicht gefunden."
+if st.session_state.delete_result == "success":
+    st.success(f"✅ {st.session_state.delete_title} wurde gelöscht!")
+    st.session_state.delete_result = None
+    st.rerun()
+elif st.session_state.delete_result == "error":
+    st.error(f"Fehler beim Löschen.")
+    st.session_state.delete_result = None
 
-if st.session_state.delete_error:
-    st.error(st.session_state.delete_error)
 
 # --- Alle Notizen anzeigen (max. 20) ---
 st.header("Alle Notizen (max. 20)")
@@ -132,10 +121,8 @@ else:
             st.write(f"**Kategorie:** {note['category']}")
             st.write(f"**Tags:** {', '.join(note['tags']) if note['tags'] else '-'}")
             st.write(f"**Erstellt am:** {note['created_at']}")
-            if st.button("🗑️ Löschen", key=f"delete_{note['id']}"):
-                if delete_note(note["id"]):
-                    st.toast(f"Notiz '{note['title']}' gelöscht!", icon="🗑️")
-                    st.rerun()
-                else:
-                    st.error("Fehler beim Löschen.")
 
+st.map()
+st.image("Gemini_Generated_Image_anbx5uanbx5uanbx.png", width=400)
+
+date = st.date_input("Pick a date")
