@@ -122,7 +122,10 @@ else:
             st.write(f"**Tags:** {', '.join(note['tags']) if note['tags'] else '-'}")
             st.write(f"**Erstellt am:** {note['created_at']}")
 
-st.map()
-st.image("Gemini_Generated_Image_anbx5uanbx5uanbx.png", width=400)
+st.map(
+    data={"lat": [50.241218], "lon": [11.321113], "name": ["Coburg"]},
+    zoom=2,
+    use_container_width=True,
+)   
 
-date = st.date_input("Pick a date")
+date = st.date_input("Pick a date. los!")
