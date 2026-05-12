@@ -291,36 +291,7 @@ Beim erstellen der Notizen habe ich keine Rueckmeldung darueber einbauen koennen
 
 #### 1. ✅ What did I accomplish?
 
-
-
-
-
-
----
-
-#### 2. 🚧 What challenges did I face?
-
-
-
-
-
-
----
-
-#### 3. 💡 How did I overcome them?
-
-
-
-
-
-
----
-
-### Day 9
-
-#### 1. ✅ What did I accomplish?
-
-
+Aufrauemen des Repositories und umbenennen der Dateien in richtige Datei Namen. 
 
 
 
@@ -344,6 +315,7 @@ Beim erstellen der Notizen habe ich keine Rueckmeldung darueber einbauen koennen
 
 
 ---
+
 
 
 # 🎉 Congratulations! You did it! 🎓✨
