@@ -114,13 +114,15 @@ elif st.session_state.delete_result == "error":
     st.session_state.delete_result = None
 
 
-# --- Alle Notizen anzeigen (max. 20) ---
-st.header("Alle Notizen (max. 20)")
+# --- Alle Notizen anzeigen (max. 20 neueste) ---
+st.header("Alle Notizen (max. 20 neueste)")
 notes = get_notes()
 if not notes:
     st.info("Keine Notizen gefunden.")
 else:
-    for note in notes[:20]:
+    # Sortiere nach created_at, neueste zuerst
+    sorted_notes = sorted(notes, key=lambda n: n["created_at"], reverse=True)
+    for note in sorted_notes[:20]:
         with st.expander(note["title"]):
             st.write(f"**Inhalt:** {note['content']}")
             st.write(f"**Kategorie:** {note['category']}")
@@ -215,7 +217,7 @@ def show_tag_network():
         ),
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     # Balkendiagramm: Tag-Häufigkeiten
     st.subheader("Tag-Häufigkeiten")
@@ -246,4 +248,4 @@ st.map(
     use_container_width=True,
 )   
 
-date = st.date_input("Pick a date. los!")
+date = st.date_input("Datum auswählen ohne Grund")

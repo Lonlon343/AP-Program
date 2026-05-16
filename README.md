@@ -230,3 +230,5 @@ HTTP POST /notes  →  Pydantic validiert Body  →  Endpoint-Funktion  →  SQL
     ├── main_day4.py              # Tag-4-Experimente
     └── test-day-4.py            # Tag-4-Tests
 ```
+
+Wenn Tests nicht durchlaufen, fastapi server neu starten!
