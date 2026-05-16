@@ -55,6 +55,7 @@ Den Schema-Konflikt habe ich gelöst, indem ich die alte notes.json geleert habe
 Das Tupel-Unpacking habe ich verstanden, nachdem ich mir die load_notes()-Funktion nochmal genau angeschaut habe: Sie liefert sowohl die Liste der Notizen als auch den nächsten freien ID-Zähler zurück.
 
 Beim wiederholten Laden habe ich verstanden, warum das so sein muss: Da der API-Server zustandslos zwischen den Requests ist und die Daten in einer Datei liegen, muss jeder Endpoint, der auf den aktuellen Datenbestand zugreifen will, ihn frisch einlesen — sonst arbeitet man mit veralteten Daten.
+
 ---
 
 ### Day 3
@@ -220,6 +221,7 @@ Um mich mit Field und field_validator vertraut zu machen, habe ich die Konzepte 
 Beim Cross-Field Validator (model_validator) hat mir der Vergleich mit field_validator geholfen: Sobald ich verstanden hatte, dass field_validator immer nur ein Feld sieht, war klar warum model_validator noetig ist, wenn zwei Felder gleichzeitig geprueft werden muessen.
 
 Für den None-Fall in NoteUpdate habe ich am Anfang jedes Validators eine Abfrage eingebaut (if v is None: return v), sodass das Feld nur dann normalisiert oder geprüft wird, wenn es tatsächlich im Request enthalten war.
+
 ---
 
 ### Day 6
@@ -249,6 +251,7 @@ Ich habe in der Fast API Dokumentation nach einer Loesung gegen das Fehlschlagen
 Einerseits haben Response-Formate und Statuscodes nicht zu den Test-Erwartungen gepasst — wie beim DELETE-Endpoint (Response(status_code=204) statt Dict) oder bei Endpoints, die 404 zurückgaben, wo die Test-Suite eine leere Liste [] erwartet hat (z. B. /tags/{name}/notes und /categories/{name}/notes, wenn der Tag oder die Kategorie noch nicht existiert). Diese Stellen habe ich gezielt umgebaut und im Code kommentiert, warum die Änderung nötig war.
 Andererseits waren Validierungs- und Geschäftsregeln zu strikt für die Tests — zum Beispiel der model_validator, der work-Notizen ohne work-Tag abgelehnt hat. Den habe ich auskommentiert, weil er sonst alle Tests blockiert hätte, die work-Notizen ohne diesen Tag erstellen.
 Das Problem mit der Notiz-ID 1000 habe ich gelöst, indem ich die Datenbankdatei gelöscht und die Tests gegen eine frische Datenbank laufen lassen habe. Damit hat sich nebenbei auch das Problem aus Tag 4 erledigt, dass die Datenbank durch viele Testläufe immer voller wurde. Die saubere Lösung wäre weiterhin eine separate Testdatenbank.
+
 ---
 
 ## Week 3
